@@ -61,7 +61,7 @@ AUDIO_PATTERNS = [
     (re.compile(r'\b(Dub(bed)?)\b', re.IGNORECASE), lambda m: "Dub"),
     (re.compile(r'\[(Sub|Dub)\]'), lambda m: f"{m.group(1)}bed"),
     (re.compile(r'\((Sub|Dub)\)'), lambda m: f"{m.group(1)}bed"),
-    (re.compile(r'\b(Eng(lish)?\s*/\s*(Jap|Kor|Chi)\b', re.IGNORECASE), lambda m: "Dual"),
+    (re.compile(r'\b(Eng(lish)?\s*/\s*(Jap|Kor|Chi))\b', re.IGNORECASE), lambda m: "Dual"),
     (re.compile(r'\b(TrueHD|DTS[- ]?HD|Atmos)\b'), lambda m: m.group(1))
 ]
 
