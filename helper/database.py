@@ -142,42 +142,42 @@ class Database:
 
     async def get_title(self, user_id):
         user = await self.col.find_one({'_id': int(user_id)})
-        return user.get('title', 'Encoded by @Anime_Edge')
+        return user.get('title', 'Encoded by @Animes_Cruise')
 
     async def set_title(self, user_id, title):
         await self.col.update_one({'_id': int(user_id)}, {'$set': {'title': title}})
 
     async def get_author(self, user_id):
         user = await self.col.find_one({'_id': int(user_id)})
-        return user.get('author', '@Anime_Edge')
+        return user.get('author', '@Animes_Cruise')
 
     async def set_author(self, user_id, author):
         await self.col.update_one({'_id': int(user_id)}, {'$set': {'author': author}})
 
     async def get_artist(self, user_id):
         user = await self.col.find_one({'_id': int(user_id)})
-        return user.get('artist', '@Anime_Edge')
+        return user.get('artist', '@Animes_Cruise')
 
     async def set_artist(self, user_id, artist):
         await self.col.update_one({'_id': int(user_id)}, {'$set': {'artist': artist}})
 
     async def get_audio(self, user_id):
         user = await self.col.find_one({'_id': int(user_id)})
-        return user.get('audio', 'By @Anime_Edge')
+        return user.get('audio', 'By @Animes_Cruise')
 
     async def set_audio(self, user_id, audio):
         await self.col.update_one({'_id': int(user_id)}, {'$set': {'audio': audio}})
 
     async def get_subtitle(self, user_id):
         user = await self.col.find_one({'_id': int(user_id)})
-        return user.get('subtitle', "By @Anime_Edge")
+        return user.get('subtitle', "By @Animes_Cruise")
 
     async def set_subtitle(self, user_id, subtitle):
         await self.col.update_one({'_id': int(user_id)}, {'$set': {'subtitle': subtitle}})
 
     async def get_video(self, user_id):
         user = await self.col.find_one({'_id': int(user_id)})
-        return user.get('video', 'Encoded By @Anime_Edge')
+        return user.get('video', 'Encoded By @Animes_Cruise')
 
     async def set_video(self, user_id, video):
         await self.col.update_one({'_id': int(user_id)}, {'$set': {'video': video}})
