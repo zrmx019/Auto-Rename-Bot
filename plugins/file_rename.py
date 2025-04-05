@@ -44,7 +44,7 @@ QUALITY_PATTERNS = [
     (re.compile(r'\b(2k|1440p)\b', re.IGNORECASE),  # 2k
     (re.compile(r'\b(HDRip|HDTV)\b', re.IGNORECASE),  # HDRip, HDTV
     (re.compile(r'\b(4kX264|4kx265)\b', re.IGNORECASE),  # 4kX264, 4kx265
-    (re.compile(r'\[(\d{3,4}[pi])\]', re.IGNORECASE)  # [1080p]
+    (re.compile(r'\[(\d{3,4}[pi])\]', re.IGNORECASE))  # [1080p]
 ]
 
 # Audio language patterns
@@ -57,7 +57,7 @@ AUDIO_PATTERNS = [
     (re.compile(r'\((Sub|Dub)\)'),  # (Sub), (Dub)
     (re.compile(r'\b(Eng(lish)?\s*/\s*(Jap|Kor|Chi))\b', re.IGNORECASE),  # English/Japanese
     (re.compile(r'\b(TrueHD|DTS[- ]?HD|Atmos)\b'),  # TrueHD, DTS-HD
-    (re.compile(r'\[(Unknown)\]')  # [Unknown]
+    (re.compile(r'\[(Unknown)\]'))  # [Unknown]
 ]
 
 def extract_season_episode(filename):
