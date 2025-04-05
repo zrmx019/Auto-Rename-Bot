@@ -28,11 +28,11 @@ renaming_operations = {}
 
 # Enhanced regex patterns for season and episode extraction
 SEASON_EPISODE_PATTERNS = [
-    (re.compile(r'S(\d+)(?:E|EP)(\d+)'),  # S01E02, S01EP02
-    (re.compile(r'S(\d+)[\s-]*(?:E|EP)(\d+)'),  # S01 E02, S01-EP02
-    (re.compile(r'Season\s*(\d+)\s*Episode\s*(\d+)', re.IGNORECASE),  # Season 1 Episode 2
-    (re.compile(r'\[S(\d+)\]\[E(\d+)\]'),  # [S01][E02]
-    (re.compile(r'S(\d+)[^\d]*(\d+)'),  # S01 13
+    (re.compile(r'S(\d+)(?:E|EP)(\d+)'),),  # S01E02, S01EP02
+    (re.compile(r'S(\d+)[\s-]*(?:E|EP)(\d+)'),),  # S01 E02, S01-EP02
+    (re.compile(r'Season\s*(\d+)\s*Episode\s*(\d+)', re.IGNORECASE),),  # Season 1 Episode 2
+    (re.compile(r'\[S(\d+)\]\[E(\d+)\]'),),  # [S01][E02]
+    (re.compile(r'S(\d+)[^\d]*(\d+)'),),  # S01 13
     (re.compile(r'(?:E|EP|Episode)\s*(\d+)', re.IGNORECASE), (None, 'episode')),
     (re.compile(r'\b(\d+)\b'), (None, 'episode'))  # Standalone number
 ]
