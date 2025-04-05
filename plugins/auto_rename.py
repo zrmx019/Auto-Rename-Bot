@@ -1,5 +1,5 @@
 from pyrogram import Client, filters
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from helper.database import codeflixbots
 
 @Client.on_message(filters.private & filters.command("autorename"))
@@ -29,28 +29,42 @@ async def auto_rename_command(client, message):
         "Remember, it might take some time, but I'll ensure your files are renamed perfectly!✨"
     )
 
+
 @Client.on_message(filters.private & filters.command("setmedia"))
 async def set_media_command(client, message):
-    # Define inline keyboard buttons for media type selection
+    """Initiate media type selection with a sleek inline keyboard."""
     keyboard = InlineKeyboardMarkup([
-        [InlineKeyboardButton("📄 Document", callback_data="setmedia_document")],
-        [InlineKeyboardButton("🎥 Video", callback_data="setmedia_video")]
+        [InlineKeyboardButton("📜 Documents", callback_data="setmedia_document")],
+        [InlineKeyboardButton("🎬 Videos", callback_data="setmedia_video")],
+        [InlineKeyboardButton("🎵 Audio", callback_data="setmedia_audio")],  # Added audio option
     ])
 
-    # Send a message with the inline buttons
     await message.reply_text(
-        "**Please select the media type you want to set:**",
-        reply_markup=keyboard
+        "✨ **Choose Your Media Vibe** ✨\n"
+        "Select the type of media you'd like to set as your preference:",
+        reply_markup=keyboard,
+        quote=True
     )
 
-@Client.on_callback_query(filters.regex("^setmedia_"))
-async def handle_media_selection(client, callback_query):
+@Client.on_callback_query(filters.regex(r"^setmedia_"))
+async def handle_media_selection(client, callback_query: CallbackQuery):
+    """Process the user's media type selection with flair and confirmation."""
     user_id = callback_query.from_user.id
-    media_type = callback_query.data.split("_", 1)[1]  # Extract media type from callback data
+    media_type = callback_query.data.split("_", 1)[1].capitalize()  # Extract and capitalize media type
 
-    # Save the preferred media type in the database
-    await codeflixbots.set_media_preference(user_id, media_type)
+    try:
+        await codeflixbots.set_media_preference(user_id, media_type.lower())
 
-    # Acknowledge the callback and send confirmation
-    await callback_query.answer(f"Media preference set to: {media_type} ✅")
-    await callback_query.message.edit_text(f"**Media preference set to:** {media_type} ✅")
+        await callback_query.answer(f"Locked in: {media_type} 🎉")
+        await callback_query.message.edit_text(
+            f"🎯 **Media Preference Updated** 🎯\n"
+            f"Your vibe is now set to: **{media_type}** ✅\n"
+            f"Ready to roll with your choice!"
+        )
+    except Exception as e:
+        await callback_query.answer("Oops, something went wrong! 😅")
+        await callback_query.message.edit_text(
+            f"⚠️ **Error Setting Preference** ⚠️\n"
+            f"Couldn’t set {media_type} right now. Try again later!\n"
+            f"Details: {str(e)}"
+        )
