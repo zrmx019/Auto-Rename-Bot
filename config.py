@@ -5,20 +5,20 @@ id_pattern = re.compile(r'^.\d+$')
 
 class Config(object):
     # pyro client config
-    API_ID    = os.environ.get("API_ID", "20570663")
-    API_HASH  = os.environ.get("API_HASH", "209c97b1090c80f24eaf6b0ef880d088")
-    BOT_TOKEN = os.environ.get("BOT_TOKEN", "6966079567:AAEMZs_kK9VwPWXbZfjW6kpYq1Yv4TiRpbo") 
+    API_ID    = os.environ.get("API_ID", "28264594")
+    API_HASH  = os.environ.get("API_HASH", "94ca8a089020a2290fd29a41f18acb94")
+    BOT_TOKEN = os.environ.get("BOT_TOKEN", "7365322253:AAF33KBkAA7i01lSt3wAF9r_F-vIGFiPZ6c") 
 
     # database config
-    DB_NAME = os.environ.get("DB_NAME","codeflix")     
-    DB_URL  = os.environ.get("DB_URL","")
-    PORT = os.environ.get("PORT", "25")
+    DB_NAME = os.environ.get("DB_NAME","Yato")     
+    DB_URL  = os.environ.get("DB_URL","mongodb+srv://YatoPro:ProYato@cluster0.zeaqrcy.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+    PORT = os.environ.get("PORT", "5428")
  
     # other configs
     BOT_UPTIME  = time.time()
     START_PIC   = os.environ.get("START_PIC", "https://graph.org/file/29a3acbbab9de5f45a5fe.jpg")
     ADMIN       = [int(admin) if id_pattern.search(admin) else admin for admin in os.environ.get('ADMIN', '6497757690').split()]
-    FORCE_SUB_CHANNELS = os.environ.get('FORCE_SUB_CHANNELS', 'codeflix_bots,codeflixsupport,anime_cruise_netflix').split(',')
+    FORCE_SUB_CHANNELS = os.environ.get('FORCE_SUB_CHANNELS', 'codeflix_bots').split(',')
     LOG_CHANNEL = int(os.environ.get("LOG_CHANNEL", "-1001868871195"))
     DUMP_CHANNEL = int(os.environ.get("DUMP_CHANNEL", "-1001868871195"))
     
@@ -39,13 +39,13 @@ class Txt(object):
 ➲ ᴇᴘɪꜱᴏᴅᴇ - ᴛᴏ ʀᴇᴘʟᴀᴄᴇ ᴇᴘɪꜱᴏᴅᴇ ɴᴜᴍʙᴇʀ
 ➲ ǫᴜᴀʟɪᴛʏ - ᴛᴏ ʀᴇᴘʟᴀᴄᴇ ǫᴜᴀʟɪᴛʏ
 
-<b>‣ ꜰᴏʀ ᴇx:- </b> <code> /autorename Suicide Squad [S02 - EPepisode - [Quality]  [Dual] @Animes_Cruise </code>
+<b>‣ ꜰᴏʀ ᴇx:- </b> <code> /autorename Overflow [S{season}E{episode}] - [Dual] {quality}</code>
 
 <b>‣ /Autorename: ʀᴇɴᴀᴍᴇ ʏᴏᴜʀ ᴍᴇᴅɪᴀ ꜰɪʟᴇꜱ ʙʏ ɪɴᴄʟᴜᴅɪɴɢ 'ᴇᴘɪꜱᴏᴅᴇ' ᴀɴᴅ 'ǫᴜᴀʟɪᴛʏ' ᴠᴀʀɪᴀʙʟᴇꜱ ɪɴ ʏᴏᴜʀ ᴛᴇxᴛ, ᴛᴏ ᴇxᴛʀᴀᴄᴛ ᴇᴘɪꜱᴏᴅᴇ ᴀɴᴅ ǫᴜᴀʟɪᴛʏ ᴘʀᴇꜱᴇɴᴛ ɪɴ ᴛʜᴇ ᴏʀɪɢɪɴᴀʟ ꜰɪʟᴇɴᴀᴍᴇ. """
     
     ABOUT_TXT = f"""<b>❍ ᴍʏ ɴᴀᴍᴇ : <a href="https://t.me/codeflix_bots">ᴀᴜᴛᴏ ʀᴇɴᴀᴍᴇ</a>
-❍ ᴅᴇᴠᴇʟᴏᴩᴇʀ : <a href="https://t.me/sewxiy">sᴜʙᴀʀᴜ</a>
-❍ ɢɪᴛʜᴜʙ : <a href="https://github.com/sewxiy">sᴜʙᴀʀᴜ</a>
+❍ ᴅᴇᴠᴇʟᴏᴩᴇʀ : <a href="https://t.me/cosmic_freak">ʏᴀᴛᴏ</a>
+❍ ɢɪᴛʜᴜʙ : <a href="https://github.com/cosmic_freak">ʏᴀᴛᴏ</a>
 ❍ ʟᴀɴɢᴜᴀɢᴇ : <a href="https://www.python.org/">ᴘʏᴛʜᴏɴ</a>
 ❍ ᴅᴀᴛᴀʙᴀꜱᴇ : <a href="https://www.mongodb.com/">ᴍᴏɴɢᴏ ᴅʙ</a>
 ❍ ʜᴏꜱᴛᴇᴅ ᴏɴ : <a href="https://t.me/codeflix_bots">ᴠᴘs</a>
@@ -90,10 +90,10 @@ class Txt(object):
 
  <u>ʏᴏᴜ ᴄᴀɴ ᴀʟsᴏ ᴅᴏɴᴀᴛᴇ ᴛʜʀᴏᴜɢʜ ᴜᴘɪ</u>
 
- ᴜᴘɪ ɪᴅ : <code>rohit162@fam</code>
+ ᴜᴘɪ ɪᴅ : <code>LodaLassan@fam</code>
 
 ɪғ ʏᴏᴜ ᴡɪsʜ ʏᴏᴜ ᴄᴀɴ sᴇɴᴅ ᴜs ss
-ᴏɴ - @sewxiy"""
+ᴏɴ - @ProYato"""
 
     PREMIUM_TXT = """<b>ᴜᴘɢʀᴀᴅᴇ ᴛᴏ ᴏᴜʀ ᴘʀᴇᴍɪᴜᴍ sᴇʀᴠɪᴄᴇ ᴀɴᴅ ᴇɴJᴏʏ ᴇxᴄʟᴜsɪᴠᴇ ғᴇᴀᴛᴜʀᴇs:
 ○ ᴜɴʟɪᴍɪᴛᴇᴅ Rᴇɴᴀᴍɪɴɢ: ʀᴇɴᴀᴍᴇ ᴀs ᴍᴀɴʏ ғɪʟᴇs ᴀs ʏᴏᴜ ᴡᴀɴᴛ ᴡɪᴛʜᴏᴜᴛ ᴀɴʏ ʀᴇsᴛʀɪᴄᴛɪᴏɴs.
@@ -116,9 +116,9 @@ Yᴏᴜʀ ᴘʀᴇᴍɪᴜᴍ ᴘʟᴀɴ ᴡɪʟʟ ʙᴇ ᴀᴄᴛɪᴠᴀᴛᴇ
 Pʀɪᴄɪɴɢ:
 ➜ ᴍᴏɴᴛʜʟʏ ᴘʀᴇᴍɪᴜᴍ: ₹50/ᴍᴏɴᴛʜ
 ➜ ᴅᴀɪʟʏ ᴘʀᴇᴍɪᴜᴍ: ₹𝟻/ᴅᴀʏ
-➜  ғᴏʀ ʙᴏᴛ ʜᴏsᴛɪɴɢ: ᴄᴏɴᴛᴀᴄᴛ @sewxiy
+➜  ғᴏʀ ʙᴏᴛ ʜᴏsᴛɪɴɢ: ᴄᴏɴᴛᴀᴄᴛ @ProYato
 
-➲ ᴜᴘɪ ɪᴅ - <code>rohit162@fam</code>
+➲ ᴜᴘɪ ɪᴅ - <code>LodaLassan@fam</code>
 
 ‼️ᴜᴘʟᴏᴀᴅ ᴛʜᴇ ᴘᴀʏᴍᴇɴᴛ sᴄʀᴇᴇɴsʜᴏᴛ ʜᴇʀᴇ ᴀɴᴅ ʀᴇᴘʟʏ ᴡɪᴛʜ ᴛʜᴇ /bought ᴄᴏᴍᴍᴀɴᴅ.</b>"""
     
