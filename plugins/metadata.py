@@ -58,8 +58,8 @@ async def metadata_callback(client, query: CallbackQuery):
             disable_web_page_preview=True,
             reply_markup=InlineKeyboardMarkup([
                 [
-                    InlineKeyboardButton("Hᴏᴍᴇ", callback_data="start"),
-                    InlineKeyboardButton("Bᴀᴄᴋ", callback_data="commands")
+                    InlineKeyboardButton("Hᴏᴍᴇ", callback_data="home"),
+                    InlineKeyboardButton("close", callback_data="close")
                 ]
             ])
         )
