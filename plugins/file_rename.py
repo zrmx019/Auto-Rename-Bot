@@ -28,19 +28,13 @@ renaming_operations = {}
 
 # Enhanced regex patterns for season and episode extraction
 SEASON_EPISODE_PATTERNS = [
-    # Standard patterns (S01E02, S01EP02)
-    (re.compile(r'S(\d+)(?:E|EP)(\d+)'), ('season', 'episode')),
-    # Patterns with spaces/dashes (S01 E02, S01-EP02)
-    (re.compile(r'S(\d+)[\s-]*(?:E|EP)(\d+)'), ('season', 'episode')),
-    # Full text patterns (Season 1 Episode 2)
-    (re.compile(r'Season\s*(\d+)\s*Episode\s*(\d+)', re.IGNORECASE), ('season', 'episode')),
-    # Patterns with brackets/parentheses ([S01][E02])
-    (re.compile(r'\[S(\d+)\]\[E(\d+)\]'), ('season', 'episode')),
-    # Fallback patterns (S01 13, Episode 13)
-    (re.compile(r'S(\d+)[^\d]*(\d+)'), ('season', 'episode')),
+    (re.compile(r'S(\d+)(?:E|EP)(\d+)'),  # S01E02, S01EP02
+    (re.compile(r'S(\d+)[\s-]*(?:E|EP)(\d+)'),  # S01 E02, S01-EP02
+    (re.compile(r'Season\s*(\d+)\s*Episode\s*(\d+)', re.IGNORECASE),  # Season 1 Episode 2
+    (re.compile(r'\[S(\d+)\]\[E(\d+)\]'),  # [S01][E02]
+    (re.compile(r'S(\d+)[^\d]*(\d+)'),  # S01 13
     (re.compile(r'(?:E|EP|Episode)\s*(\d+)', re.IGNORECASE), (None, 'episode')),
-    # Final fallback (standalone number)
-    (re.compile(r'\b(\d+)\b'), (None, 'episode'))
+    (re.compile(r'\b(\d+)\b'), (None, 'episode'))  # Standalone number
 ]
 
 # Quality detection patterns
@@ -62,16 +56,18 @@ AUDIO_PATTERNS = [
     (re.compile(r'\[(Sub|Dub)\]'), lambda m: f"{m.group(1)}bed"),
     (re.compile(r'\((Sub|Dub)\)'), lambda m: f"{m.group(1)}bed"),
     (re.compile(r'\b(Eng(lish)?\s*/\s*(Jap|Kor|Chi))\b', re.IGNORECASE), lambda m: "Dual"),
-    (re.compile(r'\b(TrueHD|DTS[- ]?HD|Atmos)\b'), lambda m: m.group(1))
+    (re.compile(r'\b(TrueHD|DTS[- ]?HD|Atmos)\b'), lambda m: m.group(1)),
+    (re.compile(r'\[(Unknown)\]'), lambda m: m.group(1))  # Added for [Unknown] tags
 ]
 
 def extract_season_episode(filename):
     """Extract season and episode numbers from filename"""
-    for pattern, (season_group, episode_group) in SEASON_EPISODE_PATTERNS:
+    for pattern in SEASON_EPISODE_PATTERNS:
         match = pattern.search(filename)
         if match:
-            season = match.group(1) if season_group else None
-            episode = match.group(2) if episode_group else match.group(1)
+            groups = match.groups()
+            season = groups[0] if len(groups) > 0 else None
+            episode = groups[1] if len(groups) > 1 else (groups[0] if len(groups) > 0 else None)
             logger.info(f"Extracted season: {season}, episode: {episode} from {filename}")
             return season, episode
     logger.warning(f"No season/episode pattern matched for {filename}")
@@ -104,7 +100,10 @@ async def cleanup_files(*paths):
     for path in paths:
         try:
             if path and os.path.exists(path):
-                os.remove(path)
+                if os.path.isfile(path):
+                    os.remove(path)
+                elif os.path.isdir(path):
+                    shutil.rmtree(path)
         except Exception as e:
             logger.error(f"Error removing {path}: {e}")
 
@@ -116,8 +115,9 @@ async def process_thumbnail(thumb_path):
     try:
         with Image.open(thumb_path) as img:
             img = img.convert("RGB").resize((320, 320))
-            img.save(thumb_path, "JPEG")
-        return thumb_path
+            processed_path = f"{thumb_path}_processed.jpg"
+            img.save(processed_path, "JPEG")
+        return processed_path
     except Exception as e:
         logger.error(f"Thumbnail processing failed: {e}")
         await cleanup_files(thumb_path)
@@ -130,12 +130,12 @@ async def add_metadata(input_path, output_path, user_id):
         raise RuntimeError("FFmpeg not found in PATH")
     
     metadata = {
-        'title': await codeflixbots.get_title(user_id),
-        'artist': await codeflixbots.get_artist(user_id),
-        'author': await codeflixbots.get_author(user_id),
-        'video_title': await codeflixbots.get_video(user_id),
-        'audio_title': await codeflixbots.get_audio(user_id),
-        'subtitle': await codeflixbots.get_subtitle(user_id)
+        'title': await codeflixbots.get_title(user_id) or "",
+        'artist': await codeflixbots.get_artist(user_id) or "",
+        'author': await codeflixbots.get_author(user_id) or "",
+        'video_title': await codeflixbots.get_video(user_id) or "",
+        'audio_title': await codeflixbots.get_audio(user_id) or "",
+        'subtitle': await codeflixbots.get_subtitle(user_id) or ""
     }
     
     cmd = [
@@ -153,53 +153,75 @@ async def add_metadata(input_path, output_path, user_id):
         output_path
     ]
     
-    process = await asyncio.create_subprocess_exec(
-        *cmd,
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE
-    )
-    _, stderr = await process.communicate()
-    
-    if process.returncode != 0:
-        raise RuntimeError(f"FFmpeg error: {stderr.decode()}")
+    try:
+        process = await asyncio.create_subprocess_exec(
+            *cmd,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
+        )
+        _, stderr = await asyncio.wait_for(process.communicate(), timeout=300)
+        
+        if process.returncode != 0:
+            raise RuntimeError(f"FFmpeg error: {stderr.decode()}")
+    except asyncio.TimeoutError:
+        process.kill()
+        raise RuntimeError("FFmpeg processing timed out")
 
 @Client.on_message(filters.private & (filters.document | filters.video | filters.audio))
 async def auto_rename_files(client, message):
     """Main handler for auto-renaming files"""
     user_id = message.from_user.id
-    format_template = await codeflixbots.get_format_template(user_id)
+    try:
+        format_template = await codeflixbots.get_format_template(user_id)
+    except Exception as e:
+        logger.error(f"Database error: {e}")
+        return await message.reply_text("Error accessing database. Please try again later.")
     
     if not format_template:
         return await message.reply_text("Please set a rename format using /autorename")
 
     # Get file information
-    if message.document:
-        file_id = message.document.file_id
-        file_name = message.document.file_name
-        file_size = message.document.file_size
-        media_type = "document"
-    elif message.video:
-        file_id = message.video.file_id
-        file_name = message.video.file_name or "video"
-        file_size = message.video.file_size
-        media_type = "video"
-    elif message.audio:
-        file_id = message.audio.file_id
-        file_name = message.audio.file_name or "audio"
-        file_size = message.audio.file_size
-        media_type = "audio"
-    else:
-        return await message.reply_text("Unsupported file type")
+    try:
+        if message.document:
+            file_id = message.document.file_id
+            file_name = message.document.file_name
+            file_size = message.document.file_size
+            media_type = "document"
+        elif message.video:
+            file_id = message.video.file_id
+            file_name = message.video.file_name or "video"
+            file_size = message.video.file_size
+            media_type = "video"
+        elif message.audio:
+            file_id = message.audio.file_id
+            file_name = message.audio.file_name or "audio"
+            file_size = message.audio.file_size
+            media_type = "audio"
+        else:
+            return await message.reply_text("Unsupported file type")
+    except Exception as e:
+        logger.error(f"Error getting file info: {e}")
+        return await message.reply_text("Error processing file information")
 
     # NSFW check
-    if await check_anti_nsfw(file_name, message):
-        return await message.reply_text("NSFW content detected")
+    try:
+        if await check_anti_nsfw(file_name, message):
+            return await message.reply_text("NSFW content detected")
+    except Exception as e:
+        logger.error(f"NSFW check failed: {e}")
+        return await message.reply_text("Error during content check")
 
     # Prevent duplicate processing
+    current_time = datetime.now()
     if file_id in renaming_operations:
-        if (datetime.now() - renaming_operations[file_id]).seconds < 10:
+        if (current_time - renaming_operations[file_id]).seconds < 10:
             return
-    renaming_operations[file_id] = datetime.now()
+    renaming_operations[file_id] = current_time
+
+    download_path = None
+    metadata_path = None
+    thumb_path = None
+    msg = None
 
     try:
         # Extract metadata from filename
@@ -221,21 +243,18 @@ async def auto_rename_files(client, message):
         
         # Handle all case variations of placeholders
         for placeholder, value in replacements.items():
-            format_template = format_template.replace(placeholder, value)
-            if placeholder.startswith('{'):
-                # Also replace capitalized versions
-                capitalized = placeholder.upper()
-                if capitalized != placeholder:
-                    format_template = format_template.replace(capitalized, value)
-                # Replace without brackets
-                no_brackets = placeholder.strip('{}')
-                format_template = format_template.replace(no_brackets, value)
+            format_template = re.sub(
+                re.escape(placeholder),
+                value,
+                format_template,
+                flags=re.IGNORECASE
+            )
 
         # Prepare file paths
         ext = os.path.splitext(file_name)[1] or ('.mp4' if media_type == 'video' else '.mp3')
         new_filename = f"{format_template}{ext}"
-        download_path = f"downloads/{new_filename}"
-        metadata_path = f"metadata/{new_filename}"
+        download_path = os.path.join("downloads", new_filename)
+        metadata_path = os.path.join("metadata", new_filename)
         
         os.makedirs(os.path.dirname(download_path), exist_ok=True)
         os.makedirs(os.path.dirname(metadata_path), exist_ok=True)
@@ -243,6 +262,14 @@ async def auto_rename_files(client, message):
         # Download file
         msg = await message.reply_text("**Downloading...**")
         try:
+            file_path = await client.download_media(
+                message,
+                file_name=download_path,
+                progress=progress_for_pyrogram,
+                progress_args=("Downloading...", msg, time.time())
+            )
+        except FloodWait as e:
+            await asyncio.sleep(e.value)
             file_path = await client.download_media(
                 message,
                 file_name=download_path,
@@ -264,21 +291,21 @@ async def auto_rename_files(client, message):
 
         # Prepare for upload
         await msg.edit("**Preparing upload...**")
-        caption = await codeflixbots.get_caption(message.chat.id) or f"**{new_filename}**"
-        thumb = await codeflixbots.get_thumbnail(message.chat.id)
-        thumb_path = None
-
-        # Handle thumbnail
-        if thumb:
-            thumb_path = await client.download_media(thumb)
-        elif media_type == "video" and message.video.thumbs:
-            thumb_path = await client.download_media(message.video.thumbs[0].file_id)
-        
-        thumb_path = await process_thumbnail(thumb_path)
-
-        # Upload file
-        await msg.edit("**Uploading...**")
         try:
+            caption = await codeflixbots.get_caption(message.chat.id) or f"**{new_filename}**"
+            thumb = await codeflixbots.get_thumbnail(message.chat.id)
+            thumb_path = None
+
+            # Handle thumbnail
+            if thumb:
+                thumb_path = await client.download_media(thumb)
+            elif media_type == "video" and message.video.thumbs:
+                thumb_path = await client.download_media(message.video.thumbs[0].file_id)
+            
+            thumb_path = await process_thumbnail(thumb_path)
+
+            # Upload file
+            await msg.edit("**Uploading...**")
             upload_params = {
                 'chat_id': message.chat.id,
                 'caption': caption,
@@ -287,22 +314,37 @@ async def auto_rename_files(client, message):
                 'progress_args': ("Uploading...", msg, time.time())
             }
 
-            if media_type == "document":
-                await client.send_document(document=file_path, **upload_params)
-            elif media_type == "video":
-                await client.send_video(video=file_path, **upload_params)
-            elif media_type == "audio":
-                await client.send_audio(audio=file_path, **upload_params)
+            try:
+                if media_type == "document":
+                    await client.send_document(document=file_path, **upload_params)
+                elif media_type == "video":
+                    await client.send_video(video=file_path, **upload_params)
+                elif media_type == "audio":
+                    await client.send_audio(audio=file_path, **upload_params)
+            except FloodWait as e:
+                await asyncio.sleep(e.value)
+                if media_type == "document":
+                    await client.send_document(document=file_path, **upload_params)
+                elif media_type == "video":
+                    await client.send_video(video=file_path, **upload_params)
+                elif media_type == "audio":
+                    await client.send_audio(audio=file_path, **upload_params)
 
-            await msg.delete()
+            if msg:
+                await msg.delete()
         except Exception as e:
-            await msg.edit(f"Upload failed: {e}")
+            if msg:
+                await msg.edit(f"Upload failed: {e}")
             raise
 
     except Exception as e:
-        logger.error(f"Processing error: {e}")
-        await message.reply_text(f"Error: {str(e)}")
+        logger.error(f"Processing error: {e}", exc_info=True)
+        if msg:
+            await msg.edit(f"Error: {str(e)}")
+        else:
+            await message.reply_text(f"Error: {str(e)}")
     finally:
         # Clean up files
         await cleanup_files(download_path, metadata_path, thumb_path)
-        renaming_operations.pop(file_id, None)
+        if file_id in renaming_operations:
+            renaming_operations.pop(file_id)
