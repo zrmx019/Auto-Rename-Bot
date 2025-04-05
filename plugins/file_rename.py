@@ -28,36 +28,36 @@ renaming_operations = {}
 
 # Enhanced regex patterns for season and episode extraction
 SEASON_EPISODE_PATTERNS = [
-    (re.compile(r'S(\d+)(?:E|EP)(\d+)'),),  # S01E02, S01EP02
-    (re.compile(r'S(\d+)[\s-]*(?:E|EP)(\d+)'),),  # S01 E02, S01-EP02
-    (re.compile(r'Season\s*(\d+)\s*Episode\s*(\d+)', re.IGNORECASE),),  # Season 1 Episode 2
-    (re.compile(r'\[S(\d+)\]\[E(\d+)\]'),),  # [S01][E02]
-    (re.compile(r'S(\d+)[^\d]*(\d+)'),),  # S01 13
-    (re.compile(r'(?:E|EP|Episode)\s*(\d+)', re.IGNORECASE), (None, 'episode')),
-    (re.compile(r'\b(\d+)\b'), (None, 'episode'))  # Standalone number
+    re.compile(r'S(\d+)(?:E|EP)(\d+)'),  # S01E02, S01EP02
+    re.compile(r'S(\d+)[\s-]*(?:E|EP)(\d+)'),  # S01 E02, S01-EP02
+    re.compile(r'Season\s*(\d+)\s*Episode\s*(\d+)', re.IGNORECASE),  # Season 1 Episode 2
+    re.compile(r'\[S(\d+)\]\[E(\d+)\]'),  # [S01][E02]
+    re.compile(r'S(\d+)[^\d]*(\d+)'),  # S01 13
+    re.compile(r'(?:E|EP|Episode)\s*(\d+)', re.IGNORECASE),  # EP02, Episode 2
+    re.compile(r'\b(\d+)\b')  # Standalone number
 ]
 
 # Quality detection patterns
 QUALITY_PATTERNS = [
-    (re.compile(r'\b(\d{3,4}[pi])\b', re.IGNORECASE), lambda m: m.group(1)),  # 1080p, 720p
-    (re.compile(r'\b(4k|2160p)\b', re.IGNORECASE), lambda m: "4k"),
-    (re.compile(r'\b(2k|1440p)\b', re.IGNORECASE), lambda m: "2k"),
-    (re.compile(r'\b(HDRip|HDTV)\b', re.IGNORECASE), lambda m: m.group(1)),
-    (re.compile(r'\b(4kX264|4kx265)\b', re.IGNORECASE), lambda m: m.group(1)),
-    (re.compile(r'\[(\d{3,4}[pi])\]', re.IGNORECASE), lambda m: m.group(1))  # [1080p]
+    (re.compile(r'\b(\d{3,4}[pi])\b', re.IGNORECASE),  # 1080p, 720p
+    (re.compile(r'\b(4k|2160p)\b', re.IGNORECASE),  # 4k
+    (re.compile(r'\b(2k|1440p)\b', re.IGNORECASE),  # 2k
+    (re.compile(r'\b(HDRip|HDTV)\b', re.IGNORECASE),  # HDRip, HDTV
+    (re.compile(r'\b(4kX264|4kx265)\b', re.IGNORECASE),  # 4kX264, 4kx265
+    (re.compile(r'\[(\d{3,4}[pi])\]', re.IGNORECASE)  # [1080p]
 ]
 
 # Audio language patterns
 AUDIO_PATTERNS = [
-    (re.compile(r'\b(Multi|Dual)[-\s]?Audio\b', re.IGNORECASE), lambda m: "Multi"),
-    (re.compile(r'\b(Dual)[-\s]?(Audio|Track)\b', re.IGNORECASE), lambda m: "Dual"),
-    (re.compile(r'\b(Sub(bed)?)\b', re.IGNORECASE), lambda m: "Sub"),
-    (re.compile(r'\b(Dub(bed)?)\b', re.IGNORECASE), lambda m: "Dub"),
-    (re.compile(r'\[(Sub|Dub)\]'), lambda m: f"{m.group(1)}bed"),
-    (re.compile(r'\((Sub|Dub)\)'), lambda m: f"{m.group(1)}bed"),
-    (re.compile(r'\b(Eng(lish)?\s*/\s*(Jap|Kor|Chi))\b', re.IGNORECASE), lambda m: "Dual"),
-    (re.compile(r'\b(TrueHD|DTS[- ]?HD|Atmos)\b'), lambda m: m.group(1)),
-    (re.compile(r'\[(Unknown)\]'), lambda m: m.group(1))  # Added for [Unknown] tags
+    (re.compile(r'\b(Multi|Dual)[-\s]?Audio\b', re.IGNORECASE),  # Multi-Audio, DualAudio
+    (re.compile(r'\b(Dual)[-\s]?(Audio|Track)\b', re.IGNORECASE),  # Dual-Audio, DualTrack
+    (re.compile(r'\b(Sub(bed)?)\b', re.IGNORECASE),  # Sub, Subbed
+    (re.compile(r'\b(Dub(bed)?)\b', re.IGNORECASE),  # Dub, Dubbed
+    (re.compile(r'\[(Sub|Dub)\]'),  # [Sub], [Dub]
+    (re.compile(r'\((Sub|Dub)\)'),  # (Sub), (Dub)
+    (re.compile(r'\b(Eng(lish)?\s*/\s*(Jap|Kor|Chi))\b', re.IGNORECASE),  # English/Japanese
+    (re.compile(r'\b(TrueHD|DTS[- ]?HD|Atmos)\b'),  # TrueHD, DTS-HD
+    (re.compile(r'\[(Unknown)\]')  # [Unknown]
 ]
 
 def extract_season_episode(filename):
@@ -66,19 +66,30 @@ def extract_season_episode(filename):
         match = pattern.search(filename)
         if match:
             groups = match.groups()
-            season = groups[0] if len(groups) > 0 else None
-            episode = groups[1] if len(groups) > 1 else (groups[0] if len(groups) > 0 else None)
+            # Handle different pattern cases
+            if len(groups) >= 2:
+                season, episode = groups[0], groups[1]
+            elif len(groups) == 1:
+                # For patterns that only match episode number
+                season, episode = None, groups[0]
+            else:
+                season, episode = None, None
+                
             logger.info(f"Extracted season: {season}, episode: {episode} from {filename}")
             return season, episode
+            
     logger.warning(f"No season/episode pattern matched for {filename}")
     return None, None
 
 def extract_quality(filename):
     """Extract quality information from filename"""
-    for pattern, extractor in QUALITY_PATTERNS:
-        match = pattern.search(filename)
+    for pattern in QUALITY_PATTERNS:
+        match = pattern[0].search(filename)
         if match:
-            quality = extractor(match)
+            if len(pattern) > 1:
+                quality = pattern[1](match) if callable(pattern[1]) else pattern[1]
+            else:
+                quality = match.group(1)
             logger.info(f"Extracted quality: {quality} from {filename}")
             return quality
     logger.warning(f"No quality pattern matched for {filename}")
@@ -86,10 +97,13 @@ def extract_quality(filename):
 
 def extract_audio_info(filename):
     """Extract audio/language information from filename"""
-    for pattern, extractor in AUDIO_PATTERNS:
-        match = pattern.search(filename)
+    for pattern in AUDIO_PATTERNS:
+        match = pattern[0].search(filename)
         if match:
-            audio_info = extractor(match)
+            if len(pattern) > 1:
+                audio_info = pattern[1](match) if callable(pattern[1]) else pattern[1]
+            else:
+                audio_info = match.group(1)
             logger.info(f"Extracted audio info: {audio_info} from {filename}")
             return audio_info
     logger.info(f"No audio pattern matched for {filename}")
