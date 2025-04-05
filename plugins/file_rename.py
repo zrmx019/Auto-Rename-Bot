@@ -53,6 +53,18 @@ QUALITY_PATTERNS = [
     (re.compile(r'\[(\d{3,4}[pi])\]', re.IGNORECASE), lambda m: m.group(1))  # [1080p]
 ]
 
+# Audio language patterns
+AUDIO_PATTERNS = [
+    (re.compile(r'\b(Multi|Dual)[-\s]?Audio\b', re.IGNORECASE), lambda m: "Multi"),
+    (re.compile(r'\b(Dual)[-\s]?(Audio|Track)\b', re.IGNORECASE), lambda m: "Dual"),
+    (re.compile(r'\b(Sub(bed)?)\b', re.IGNORECASE), lambda m: "Sub"),
+    (re.compile(r'\b(Dub(bed)?)\b', re.IGNORECASE), lambda m: "Dub"),
+    (re.compile(r'\[(Sub|Dub)\]'), lambda m: f"{m.group(1)}bed"),
+    (re.compile(r'\((Sub|Dub)\)'), lambda m: f"{m.group(1)}bed"),
+    (re.compile(r'\b(Eng(lish)?\s*/\s*(Jap|Kor|Chi)\b', re.IGNORECASE), lambda m: "Dual"),
+    (re.compile(r'\b(TrueHD|DTS[- ]?HD|Atmos)\b'), lambda m: m.group(1))
+]
+
 def extract_season_episode(filename):
     """Extract season and episode numbers from filename"""
     for pattern, (season_group, episode_group) in SEASON_EPISODE_PATTERNS:
@@ -75,6 +87,17 @@ def extract_quality(filename):
             return quality
     logger.warning(f"No quality pattern matched for {filename}")
     return "Unknown"
+
+def extract_audio_info(filename):
+    """Extract audio/language information from filename"""
+    for pattern, extractor in AUDIO_PATTERNS:
+        match = pattern.search(filename)
+        if match:
+            audio_info = extractor(match)
+            logger.info(f"Extracted audio info: {audio_info} from {filename}")
+            return audio_info
+    logger.info(f"No audio pattern matched for {filename}")
+    return None
 
 async def cleanup_files(*paths):
     """Safely remove files if they exist"""
@@ -182,19 +205,31 @@ async def auto_rename_files(client, message):
         # Extract metadata from filename
         season, episode = extract_season_episode(file_name)
         quality = extract_quality(file_name)
+        audio_info = extract_audio_info(file_name)
         
         # Replace placeholders in template
         replacements = {
             '{season}': season or 'XX',
             '{episode}': episode or 'XX',
             '{quality}': quality,
+            '{audio}': audio_info or 'Unknown',
             'Season': season or 'XX',
             'Episode': episode or 'XX',
-            'QUALITY': quality
+            'QUALITY': quality,
+            'AUDIO': audio_info or 'Unknown'
         }
         
+        # Handle all case variations of placeholders
         for placeholder, value in replacements.items():
             format_template = format_template.replace(placeholder, value)
+            if placeholder.startswith('{'):
+                # Also replace capitalized versions
+                capitalized = placeholder.upper()
+                if capitalized != placeholder:
+                    format_template = format_template.replace(capitalized, value)
+                # Replace without brackets
+                no_brackets = placeholder.strip('{}')
+                format_template = format_template.replace(no_brackets, value)
 
         # Prepare file paths
         ext = os.path.splitext(file_name)[1] or ('.mp4' if media_type == 'video' else '.mp3')
