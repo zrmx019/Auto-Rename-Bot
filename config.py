@@ -5,20 +5,20 @@ id_pattern = re.compile(r'^.\d+$')
 
 class Config(object):
     # pyro client config
-    API_ID    = os.environ.get("API_ID", "20570663")
-    API_HASH  = os.environ.get("API_HASH", "209c97b1090c80f24eaf6b0ef880d088")
-    BOT_TOKEN = os.environ.get("BOT_TOKEN", "6966079567:AAEMZs_kK9VwPWXbZfjW6kpYq1Yv4TiRpbo") 
+    API_ID    = os.environ.get("API_ID", "28264594")
+    API_HASH  = os.environ.get("API_HASH", "94ca8a089020a2290fd29a41f18acb94")
+    BOT_TOKEN = os.environ.get("BOT_TOKEN", "7365322253:AAHboQtxtnJsJ2Ov5E8xqBvbmz2fG82Atrw") 
 
     # database config
-    DB_NAME = os.environ.get("DB_NAME","codeflix")     
-    DB_URL  = os.environ.get("DB_URL","")
+    DB_NAME = os.environ.get("DB_NAME","Yato")     
+    DB_URL  = os.environ.get("DB_URL","mongodb+srv://YatoPro:ProYato@cluster0.zeaqrcy.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
     PORT = os.environ.get("PORT", "25")
  
     # other configs
     BOT_UPTIME  = time.time()
     START_PIC   = os.environ.get("START_PIC", "https://graph.org/file/29a3acbbab9de5f45a5fe.jpg")
     ADMIN       = [int(admin) if id_pattern.search(admin) else admin for admin in os.environ.get('ADMIN', '6497757690').split()]
-    FORCE_SUB_CHANNELS = os.environ.get('FORCE_SUB_CHANNELS', 'codeflix_bots,codeflixsupport,anime_cruise_netflix').split(',')
+    FORCE_SUB_CHANNELS = os.environ.get('FORCE_SUB_CHANNELS', 'codeflix_bots').split(',')
     LOG_CHANNEL = int(os.environ.get("LOG_CHANNEL", "-1001868871195"))
     DUMP_CHANNEL = int(os.environ.get("DUMP_CHANNEL", "-1001868871195"))
     
