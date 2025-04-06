@@ -17,6 +17,8 @@ pyrogram.utils.MIN_CHANNEL_ID = -1009147483647
 # Setting SUPPORT_CHAT directly here
 SUPPORT_CHAT = int(os.environ.get("SUPPORT_CHAT", "-1001953724858"))
 
+PORT = Config.PORT
+
 class Bot(Client):
 
     def __init__(self):
@@ -41,7 +43,7 @@ class Bot(Client):
         if Config.WEBHOOK:
             app = web.AppRunner(await web_server())
             await app.setup()       
-            await web.TCPSite(app, "0.0.0.0", 8080).start()     
+            await web.TCPSite(app, "0.0.0.0", PORT).start()     
         print(f"{me.first_name} Is Started.....✨️")
 
         # Calculate uptime using timedelta
