@@ -12,7 +12,7 @@ async def auto_rename_command(client, message):
         await message.reply_text(
             "**Please provide a new name after the command /autorename**\n\n"
             "Here's how to use it:\n"
-            "**Example format:** `/autorename Overflow [S{season}E{episode}] - [{audio}] {quality}`"
+            "**Example format:** `/autorename Overflow [S{season}E{episode}] - [Dual] {quality}`"
         )
         return
 
