@@ -35,7 +35,7 @@ class Bot(Client):
         self.start_time = time.time()
 
     async def start(self, *args, **kwargs):
-        await super().start()
+        await super().start(*args, **kwargs)
         me = await self.get_me()
         self.mention = me.mention
         self.username = me.username  
