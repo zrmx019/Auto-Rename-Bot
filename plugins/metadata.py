@@ -103,7 +103,7 @@ async def metadata_callback(client, query: CallbackQuery):
 async def title(client, message):
     if len(message.command) == 1:
         return await message.reply_text(
-            "**Gɪᴠᴇ Tʜᴇ Tɪᴛʟᴇ\n\nExᴀᴍᴩʟᴇ:- /settitle Encoded By @Animes_Cruise**")
+            "**Gɪᴠᴇ Tʜᴇ Tɪᴛʟᴇ\n\nExᴀᴍᴩʟᴇ:- /settitle Encoded By @Weoo_Animes**")
     title = message.text.split(" ", 1)[1]
     await db.set_title(message.from_user.id, title=title)
     await message.reply_text("**✅ Tɪᴛʟᴇ Sᴀᴠᴇᴅ**")
@@ -112,7 +112,7 @@ async def title(client, message):
 async def author(client, message):
     if len(message.command) == 1:
         return await message.reply_text(
-            "**Gɪᴠᴇ Tʜᴇ Aᴜᴛʜᴏʀ\n\nExᴀᴍᴩʟᴇ:- /setauthor @Animes_Cruise**")
+            "**Gɪᴠᴇ Tʜᴇ Aᴜᴛʜᴏʀ\n\nExᴀᴍᴩʟᴇ:- /setauthor @Weoo_Animes**")
     author = message.text.split(" ", 1)[1]
     await db.set_author(message.from_user.id, author=author)
     await message.reply_text("**✅ Aᴜᴛʜᴏʀ Sᴀᴠᴇᴅ**")
@@ -121,7 +121,7 @@ async def author(client, message):
 async def artist(client, message):
     if len(message.command) == 1:
         return await message.reply_text(
-            "**Gɪᴠᴇ Tʜᴇ Aʀᴛɪꜱᴛ\n\nExᴀᴍᴩʟᴇ:- /setartist @Animes_Cruise**")
+            "**Gɪᴠᴇ Tʜᴇ Aʀᴛɪꜱᴛ\n\nExᴀᴍᴩʟᴇ:- /setartist @Weoo_Animes**")
     artist = message.text.split(" ", 1)[1]
     await db.set_artist(message.from_user.id, artist=artist)
     await message.reply_text("**✅ Aʀᴛɪꜱᴛ Sᴀᴠᴇᴅ**")
@@ -130,7 +130,7 @@ async def artist(client, message):
 async def audio(client, message):
     if len(message.command) == 1:
         return await message.reply_text(
-            "**Gɪᴠᴇ Tʜᴇ Aᴜᴅɪᴏ Tɪᴛʟᴇ\n\nExᴀᴍᴩʟᴇ:- /setaudio @Animes_Cruise**")
+            "**Gɪᴠᴇ Tʜᴇ Aᴜᴅɪᴏ Tɪᴛʟᴇ\n\nExᴀᴍᴩʟᴇ:- /setaudio @Weoo_Animes**")
     audio = message.text.split(" ", 1)[1]
     await db.set_audio(message.from_user.id, audio=audio)
     await message.reply_text("**✅ Aᴜᴅɪᴏ Sᴀᴠᴇᴅ**")
@@ -139,7 +139,7 @@ async def audio(client, message):
 async def subtitle(client, message):
     if len(message.command) == 1:
         return await message.reply_text(
-            "**Gɪᴠᴇ Tʜᴇ Sᴜʙᴛɪᴛʟᴇ Tɪᴛʟᴇ\n\nExᴀᴍᴩʟᴇ:- /setsubtitle @Animes_Cruise**")
+            "**Gɪᴠᴇ Tʜᴇ Sᴜʙᴛɪᴛʟᴇ Tɪᴛʟᴇ\n\nExᴀᴍᴩʟᴇ:- /setsubtitle @Weoo_Animes**")
     subtitle = message.text.split(" ", 1)[1]
     await db.set_subtitle(message.from_user.id, subtitle=subtitle)
     await message.reply_text("**✅ Sᴜʙᴛɪᴛʟᴇ Sᴀᴠᴇᴅ**")
@@ -148,7 +148,7 @@ async def subtitle(client, message):
 async def video(client, message):
     if len(message.command) == 1:
         return await message.reply_text(
-            "**Gɪᴠᴇ Tʜᴇ Vɪᴅᴇᴏ Tɪᴛʟᴇ\n\nExᴀᴍᴩʟᴇ:- /setvideo Encoded by @Animes_Cruise**")
+            "**Gɪᴠᴇ Tʜᴇ Vɪᴅᴇᴏ Tɪᴛʟᴇ\n\nExᴀᴍᴩʟᴇ:- /setvideo Encoded by @Weoo_Animes**")
     video = message.text.split(" ", 1)[1]
     await db.set_video(message.from_user.id, video=video)
     await message.reply_text("**✅ Vɪᴅᴇᴏ Sᴀᴠᴇᴅ**")
